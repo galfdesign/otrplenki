@@ -18,6 +18,12 @@
             box-shadow: 0 2px 16px rgba(70, 118, 250, 0.10);
             padding: 7px 2vw 7px 2vw;
         }
+        @media (max-width: 500px) {
+            .calculator {
+                max-width: 100vw;
+                padding: 16px 7vw 18px 7vw;
+            }
+        }
         h2 {
             text-align: center;
             color: #98b6ff;
@@ -30,14 +36,40 @@
             font-size: 0.98rem;
             text-align: center;
         }
+        .circle-range-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.2em;
+            margin-bottom: 8px;
+        }
+        .circle-range-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: #2e3742;
+            color: #fff;
+            font-size: 1.7em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.09);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.17s;
+            user-select: none;
+        }
+        .circle-range-btn:active {
+            background: #53b4ff;
+            color: #fff;
+        }
         .circle-range-wrapper {
             position: relative;
             width: 138px;
             height: 138px;
-            margin: 0 auto 8px auto;
         }
         .circle-range-svg {
-            /* Поворот на 90 градусов (теперь начинается строго вверх) */
             transform: rotate(0deg);
         }
         .circle-range-track {
@@ -99,9 +131,6 @@
             margin-top: 10px;
             font-weight: bold;
         }
-        @media (max-width: 400px) {
-            .calculator { max-width: 98vw; padding: 3px 1vw 5px 1vw;}
-        }
         select {
             padding: 3px 7px;
             font-size: 0.97em;
@@ -117,14 +146,18 @@
 <div class="calculator">
     <h2>Тепловой поток от бетонной плиты</h2>
     <div class="knob-label">Температура воздуха, °C</div>
-    <div class="circle-range-wrapper">
-        <svg class="circle-range-svg" width="138" height="138">
-            <circle class="circle-range-track" cx="69" cy="69" r="55"/>
-            <circle class="circle-range-fill" cx="69" cy="69" r="55" stroke-dasharray="345" stroke-dashoffset="120"/>
-            <text x="69" y="65" class="circle-range-text" id="circleTempText">22</text>
-            <text x="69" y="99" class="circle-range-label">°C</text>
-        </svg>
-        <input type="range" min="10" max="40" step="1" value="22" class="circle-range-input" id="circleRange">
+    <div class="circle-range-row">
+        <button class="circle-range-btn" id="circleMinus" title="Уменьшить">–</button>
+        <div class="circle-range-wrapper">
+            <svg class="circle-range-svg" width="138" height="138">
+                <circle class="circle-range-track" cx="69" cy="69" r="55"/>
+                <circle class="circle-range-fill" cx="69" cy="69" r="55" stroke-dasharray="345" stroke-dashoffset="120"/>
+                <text x="69" y="65" class="circle-range-text" id="circleTempText">22</text>
+                <text x="69" y="99" class="circle-range-label">°C</text>
+            </svg>
+            <input type="range" min="10" max="40" step="1" value="22" class="circle-range-input" id="circleRange">
+        </div>
+        <button class="circle-range-btn" id="circlePlus" title="Увеличить">+</button>
     </div>
     <div class="slider-row">
         <div class="slider-label">
@@ -176,12 +209,13 @@
     const circleRange = document.getElementById('circleRange');
     const circleTempText = document.getElementById('circleTempText');
     const circleFill = document.querySelector('.circle-range-fill');
+    const circleMinus = document.getElementById('circleMinus');
+    const circlePlus = document.getElementById('circlePlus');
     const minCircle = 10, maxCircle = 40, circleLen = 2 * Math.PI * 55;
 
     function updateCircleRange() {
         const value = +circleRange.value;
         const percent = (value - minCircle) / (maxCircle - minCircle);
-        // Поворот на 90°: начало сверху (0%)
         const dashoffset = circleLen * (1 - percent);
         circleFill.setAttribute('stroke-dasharray', circleLen);
         circleFill.setAttribute('stroke-dashoffset', dashoffset);
@@ -191,7 +225,23 @@
     }
     circleRange.addEventListener('input', updateCircleRange);
 
-    // Остальной JS-код для калькулятора (аналогичный прошлой версии)
+    // Кнопки + и -
+    circleMinus.onclick = function() {
+        let v = +circleRange.value;
+        if (v > minCircle) {
+            circleRange.value = v - 1;
+            updateCircleRange();
+        }
+    };
+    circlePlus.onclick = function() {
+        let v = +circleRange.value;
+        if (v < maxCircle) {
+            circleRange.value = v + 1;
+            updateCircleRange();
+        }
+    };
+
+    // Остальной JS-код для калькулятора
     function getHconvAir(speed) {
         if (speed <= 0.05) return 8;
         if (speed <= 0.2)  return 10;
