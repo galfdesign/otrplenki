@@ -7,11 +7,11 @@
     <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
-            background: #f3f6fb;
+            background: #222931;
             margin: 0;
         }
         .calculator {
-            background: #fff;
+            background: #222931;
             max-width: 370px;
             margin: 18px auto 0 auto;
             border-radius: 16px;
@@ -20,161 +20,111 @@
         }
         h2 {
             text-align: center;
-            color: #4676fa;
+            color: #98b6ff;
             font-size: 1.2rem;
             margin-bottom: 14px;
         }
-        .knob-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 16px;
-        }
         .knob-label {
-            color: #789;
-            margin-bottom: 10px;
+            color: #bbc7d4;
+            margin-bottom: 8px;
             font-size: 0.98rem;
             text-align: center;
         }
-        .slider-container {
+        .circle-range-wrapper {
             position: relative;
-            width: 170px;
-            height: 170px;
-            margin: 0 auto 5px auto;
+            width: 138px;
+            height: 138px;
+            margin: 0 auto 8px auto;
         }
-        .slider {
-            width: 100%;
-            height: 100%;
-            transform: rotate(-90deg);
+        .circle-range-svg {
+            /* Поворот на 90 градусов (теперь начинается строго вверх) */
+            transform: rotate(0deg);
         }
-        .slider-track {
-            fill: none;
-            stroke: #e0e0e0;
-            stroke-width: 12;
-            stroke-linecap: round;
+        .circle-range-track {
+            stroke: #444d57;
+            stroke-width: 18;
         }
-        .slider-progress {
-            fill: none;
-            stroke: #ff5e5e;
-            stroke-width: 12;
-            stroke-linecap: round;
-            stroke-dasharray: 424.12;
-            stroke-dashoffset: 424.12;
-            transition: stroke-dashoffset 0.3s;
+        .circle-range-fill {
+            stroke: #53b4ff;
+            stroke-width: 18;
+            transition: stroke-dashoffset 0.25s;
         }
-        .slider-thumb {
-            position: absolute;
-            width: 26px;
-            height: 26px;
-            background: #ff5e5e;
-            border-radius: 50%;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            cursor: pointer;
-            box-shadow: 0 0 8px rgba(255, 94, 94, 0.5);
-            z-index: 10;
-            transition: background 0.2s, box-shadow 0.2s;
-            border: 3px solid #fff;
-        }
-        .display {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            z-index: 5;
-            user-select: none;
-        }
-        .temperature {
-            font-size: 33px;
+        .circle-range-text {
+            fill: #fff;
+            font-size: 2.2em;
             font-weight: bold;
-            color: #333;
-            margin-bottom: 6px;
-            transition: color 0.2s;
+            text-anchor: middle;
+            dominant-baseline: middle;
         }
-        .label {
-            font-size: 13px;
-            color: #666;
+        .circle-range-label {
+            fill: #8ea5c8;
+            font-size: 1em;
+            text-anchor: middle;
         }
-        .cold { color: #5eb8ff; }
-        .hot { color: #ff5e5e; }
-        .slider-row {
-            margin-bottom: 14px;
-            margin-top: 0;
+        .circle-range-input {
+            position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;
         }
+        .slider-row { margin-bottom: 14px; margin-top: 0; }
         .slider-label {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 3px;
-            font-size: 0.98rem;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 3px; font-size: 0.98rem; color: #b4bed0;
         }
         .slider-value {
-            min-width: 44px;
-            text-align: right;
-            font-size: 1em;
-            color: #4676fa;
-            font-weight: bold;
+            min-width: 44px; text-align: right; font-size: 1em; color: #53b4ff; font-weight: bold;
         }
         input[type="range"] {
-            width: 100%;
-            accent-color: #4676fa;
-            margin: 0;
-            margin-top: 2px;
+            width: 100%; accent-color: #53b4ff; margin: 0; margin-top: 2px;
         }
         .result-block {
             margin-top: 10px;
-            background: #f6f8fe;
+            background: #242c36;
             padding: 12px 9px 7px 9px;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(70, 118, 250, 0.06);
             font-size: 0.98rem;
+            color: #e2e7ed;
         }
         .highlight-result {
             font-size: 1.28em;
-            color: #2b5bd8;
+            color: #53b4ff;
             font-weight: bold;
             margin: 12px 0 6px 0;
             display: block;
         }
         .footer-brand {
             text-align:center;
-            color:#789;
+            color:#7d95b0;
             font-size: 1em;
             letter-spacing:0.04em;
             margin-top: 10px;
             font-weight: bold;
         }
         @media (max-width: 400px) {
-            .slider-container { width: 96vw; height: 96vw; min-width:120px; min-height:120px; }
             .calculator { max-width: 98vw; padding: 3px 1vw 5px 1vw;}
         }
         select {
             padding: 3px 7px;
             font-size: 0.97em;
             border-radius: 5px;
-            border: 1px solid #b9c9db;
-            background: #f5f8fd;
+            border: 1px solid #506380;
+            background: #232b33;
+            color: #e2e7ed;
         }
+        option { background: #232b33; color: #e2e7ed;}
     </style>
 </head>
 <body>
 <div class="calculator">
     <h2>Тепловой поток от бетонной плиты</h2>
-    <div class="knob-container">
-        <div class="knob-label">Температура воздуха, °C</div>
-        <div class="slider-container">
-            <svg class="slider" viewBox="0 0 120 120">
-                <circle class="slider-track" cx="60" cy="60" r="54"></circle>
-                <circle class="slider-progress" cx="60" cy="60" r="54"></circle>
-            </svg>
-            <div class="slider-thumb"></div>
-            <div class="display">
-                <div class="temperature" id="airTempValue">22°C</div>
-                <div class="label">Температура</div>
-            </div>
-        </div>
+    <div class="knob-label">Температура воздуха, °C</div>
+    <div class="circle-range-wrapper">
+        <svg class="circle-range-svg" width="138" height="138">
+            <circle class="circle-range-track" cx="69" cy="69" r="55"/>
+            <circle class="circle-range-fill" cx="69" cy="69" r="55" stroke-dasharray="345" stroke-dashoffset="120"/>
+            <text x="69" y="65" class="circle-range-text" id="circleTempText">22</text>
+            <text x="69" y="99" class="circle-range-label">°C</text>
+        </svg>
+        <input type="range" min="10" max="40" step="1" value="22" class="circle-range-input" id="circleRange">
     </div>
     <div class="slider-row">
         <div class="slider-label">
@@ -222,107 +172,26 @@
     <div class="footer-brand">Galf Design</div>
 </div>
 <script>
-    // --- Компактный круговой слайдер ---
-    const minTemp = 10;
-    const maxTemp = 40;
-    let airTemp = 22;
-    const slider = document.querySelector('.slider-progress');
-    const thumb = document.querySelector('.slider-thumb');
-    const temperatureDisplay = document.getElementById('airTempValue');
-    const circ = 2 * Math.PI * 54;
-    function updateSlider(temp) {
-        const percentage = (temp - minTemp) / (maxTemp - minTemp);
-        const dashoffset = circ * (1 - percentage);
-        slider.style.strokeDasharray = circ;
-        slider.style.strokeDashoffset = dashoffset;
+    // Круглый range для температуры воздуха (с началом вертикально вверх)
+    const circleRange = document.getElementById('circleRange');
+    const circleTempText = document.getElementById('circleTempText');
+    const circleFill = document.querySelector('.circle-range-fill');
+    const minCircle = 10, maxCircle = 40, circleLen = 2 * Math.PI * 55;
 
-        // Позиция ручки
-        const angle = percentage * 360 - 90;
-        const radian = angle * Math.PI / 180;
-        const thumbX = 60 + 54 * Math.cos(radian);
-        const thumbY = 60 + 54 * Math.sin(radian);
-        thumb.style.left = `${thumbX * 1.41}px`;
-        thumb.style.top = `${thumbY * 1.41}px`;
-
-        // Температура в центре
-        temperatureDisplay.textContent = `${Math.round(temp)}°C`;
-
-        // Цвета
-        if (temp < 15) {
-            temperatureDisplay.className = 'temperature cold';
-            slider.style.stroke = '#5eb8ff';
-            thumb.style.background = '#5eb8ff';
-            thumb.style.boxShadow = '0 0 8px rgba(94,184,255,0.7)';
-        } else if (temp > 27) {
-            temperatureDisplay.className = 'temperature hot';
-            slider.style.stroke = '#ff5e5e';
-            thumb.style.background = '#ff5e5e';
-            thumb.style.boxShadow = '0 0 8px rgba(255,94,94,0.6)';
-        } else {
-            temperatureDisplay.className = 'temperature';
-            slider.style.stroke = '#4caf50';
-            thumb.style.background = '#4caf50';
-            thumb.style.boxShadow = '0 0 8px rgba(76,175,80,0.5)';
-        }
+    function updateCircleRange() {
+        const value = +circleRange.value;
+        const percent = (value - minCircle) / (maxCircle - minCircle);
+        // Поворот на 90°: начало сверху (0%)
+        const dashoffset = circleLen * (1 - percent);
+        circleFill.setAttribute('stroke-dasharray', circleLen);
+        circleFill.setAttribute('stroke-dashoffset', dashoffset);
+        circleTempText.textContent = value;
+        airTemp = value;
         updateResult();
     }
+    circleRange.addEventListener('input', updateCircleRange);
 
-    function getAngleFromPoint(x, y) {
-        const dx = x - 90;
-        const dy = y - 90;
-        let angle = Math.atan2(dy, dx) * 180 / Math.PI + 90;
-        if (angle < 0) angle += 360;
-        return angle;
-    }
-    function setTemperatureFromAngle(angle) {
-        let percentage = angle / 360;
-        percentage = Math.max(0, Math.min(1, percentage));
-        let temp = minTemp + percentage * (maxTemp - minTemp);
-        airTemp = Math.round(temp);
-        updateSlider(airTemp);
-    }
-
-    let isDragging = false;
-    thumb.addEventListener('mousedown', function(e) {
-        isDragging = true;
-        e.preventDefault();
-    });
-    document.addEventListener('mousemove', function(e) {
-        if (!isDragging) return;
-        const sliderRect = slider.getBoundingClientRect();
-        const x = e.clientX - (sliderRect.left + sliderRect.width/2) + 60;
-        const y = e.clientY - (sliderRect.top + sliderRect.height/2) + 60;
-        const angle = getAngleFromPoint(x, y);
-        setTemperatureFromAngle(angle);
-    });
-    document.addEventListener('mouseup', function() { isDragging = false; });
-    // Touch для мобилы
-    thumb.addEventListener('touchstart', function(e) { isDragging = true; e.preventDefault(); });
-    document.addEventListener('touchmove', function(e) {
-        if (!isDragging) return;
-        const touch = e.touches[0];
-        const sliderRect = slider.getBoundingClientRect();
-        const x = touch.clientX - (sliderRect.left + sliderRect.width/2) + 60;
-        const y = touch.clientY - (sliderRect.top + sliderRect.height/2) + 60;
-        const angle = getAngleFromPoint(x, y);
-        setTemperatureFromAngle(angle);
-        e.preventDefault();
-    });
-    document.addEventListener('touchend', function() { isDragging = false; });
-    // Клавиши (фокус по ручке)
-    thumb.tabIndex = 0;
-    thumb.addEventListener('keydown', function(e) {
-        if (e.key === "ArrowUp" || e.key === "ArrowRight") {
-            airTemp = Math.min(airTemp + 1, maxTemp);
-            updateSlider(airTemp);
-        }
-        if (e.key === "ArrowDown" || e.key === "ArrowLeft") {
-            airTemp = Math.max(airTemp - 1, minTemp);
-            updateSlider(airTemp);
-        }
-    });
-
-    // --- Логика: ГОСТ без воздуха, при скорости > 0 — по воздуху ---
+    // Остальной JS-код для калькулятора (аналогичный прошлой версии)
     function getHconvAir(speed) {
         if (speed <= 0.05) return 8;
         if (speed <= 0.2)  return 10;
@@ -331,7 +200,6 @@
         if (speed <= 2.0)  return 25;
         return 30;
     }
-
     function updateResult() {
         const tempPlate = parseInt(document.getElementById('tempPlate').value) || 29;
         document.getElementById('tempPlateValue').textContent = tempPlate;
@@ -339,23 +207,20 @@
         const airSpeed = parseFloat(document.getElementById('airSpeed').value);
         document.getElementById('airSpeedValue').textContent = airSpeed.toFixed(2);
 
-        // Новый блок: вниз через утеплитель
         const insThick = parseInt(document.getElementById('insThick').value) || 50;
         document.getElementById('insThickValue').textContent = insThick;
         const lambda = parseFloat(document.getElementById('lambda').value) || 0.035;
         const tBelow = parseInt(document.getElementById('tBelow').value) || 0;
         document.getElementById('tBelowValue').textContent = tBelow;
 
-        const tm = tempPlate; // температура поверхности пола (°C)
-        const tb = airTemp;   // температура воздуха (°C)
+        const tm = tempPlate;
+        const tb = airTemp;
         const dt = tm - tb;
 
-        // α_и (излучение) — ГОСТ
         const alpha_i = (dt !== 0)
             ? 5.3 * (Math.pow(273 + tm, 4) - Math.pow(273 + tb, 4)) / (Math.pow(100, 4) * (tm - tb))
             : 0;
 
-        // α_к (конвекция)
         let alpha_k = 0;
         let alpha_k_src = "";
         if (airSpeed <= 0.05) {
@@ -366,13 +231,11 @@
             alpha_k_src = "по скорости воздуха";
         }
 
-        // Тепловой поток вверх
         const q_rad = alpha_i * dt;
         const q_conv = alpha_k * dt;
         const q_up = q_rad + q_conv;
 
-        // Вниз через утеплитель
-        const R = (insThick / 1000) / lambda; // δ, м / λ
+        const R = (insThick / 1000) / lambda;
         let q_down = R > 0 ? (tm - tBelow) / R : 0;
 
         document.getElementById('result').innerHTML =
@@ -391,8 +254,9 @@
     document.getElementById('lambda').addEventListener('change', updateResult);
     document.getElementById('tBelow').addEventListener('input', updateResult);
 
-    // Init
-    updateSlider(airTemp);
+    // Первичная инициализация:
+    let airTemp = +circleRange.value;
+    updateCircleRange();
 </script>
 </body>
 </html>
