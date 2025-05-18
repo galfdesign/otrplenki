@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Калькулятор теплового потока бетонной плиты — ГОСТ + воздух</title>
+    <title>Калькулятор теплового потока бетонной плиты</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
@@ -12,23 +12,23 @@
         }
         .calculator {
             background: #fff;
-            max-width: 350px;
-            margin: 28px auto 0 auto;
+            max-width: 370px;
+            margin: 18px auto 0 auto;
             border-radius: 16px;
             box-shadow: 0 2px 16px rgba(70, 118, 250, 0.10);
-            padding: 18px 10px 10px 10px;
+            padding: 14px 10px 10px 10px;
         }
         h2 {
             text-align: center;
             color: #4676fa;
             font-size: 1.2rem;
-            margin-bottom: 18px;
+            margin-bottom: 14px;
         }
         .knob-container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-bottom: 18px;
+            margin-bottom: 16px;
         }
         .knob-label {
             color: #789;
@@ -100,14 +100,14 @@
         .cold { color: #5eb8ff; }
         .hot { color: #ff5e5e; }
         .slider-row {
-            margin-bottom: 16px;
+            margin-bottom: 14px;
             margin-top: 0;
         }
         .slider-label {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
             font-size: 0.98rem;
         }
         .slider-value {
@@ -124,22 +124,29 @@
             margin-top: 2px;
         }
         .result-block {
-            margin-top: 14px;
+            margin-top: 10px;
             background: #f6f8fe;
             padding: 12px 9px 7px 9px;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(70, 118, 250, 0.06);
-            font-size: 0.99rem;
+            font-size: 0.98rem;
         }
         @media (max-width: 400px) {
             .slider-container { width: 96vw; height: 96vw; min-width:120px; min-height:120px; }
             .calculator { max-width: 98vw; padding: 7px 1vw 6px 1vw;}
         }
+        select {
+            padding: 3px 7px;
+            font-size: 0.97em;
+            border-radius: 5px;
+            border: 1px solid #b9c9db;
+            background: #f5f8fd;
+        }
     </style>
 </head>
 <body>
 <div class="calculator">
-    <h2>Тепловой поток бетонной плиты вверх</h2>
+    <h2>Тепловой поток бетонной плиты</h2>
     <div class="knob-container">
         <div class="knob-label">Температура воздуха, °C</div>
         <div class="slider-container">
@@ -154,13 +161,7 @@
             </div>
         </div>
     </div>
-    <div class="slider-row">
-        <div class="slider-label">
-            <span>Температура плиты, °C</span>
-            <span class="slider-value" id="tempPlateValue">30</span>
-        </div>
-        <input type="range" id="tempPlate" min="10" max="60" step="1" value="30">
-    </div>
+    <!-- Перемещённый слайдер скорости воздуха -->
     <div class="slider-row">
         <div class="slider-label">
             <span>Скорость воздуха, м/с</span>
@@ -171,10 +172,43 @@
             <span>0: без движения · 0.5: сквозняк · 1.0: вентиляция · 2.0: сильный поток</span>
         </div>
     </div>
+    <!-- Теперь слайдер температуры плиты -->
+    <div class="slider-row">
+        <div class="slider-label">
+            <span>Температура плиты, °C</span>
+            <span class="slider-value" id="tempPlateValue">30</span>
+        </div>
+        <input type="range" id="tempPlate" min="10" max="60" step="1" value="30">
+    </div>
+    <div class="slider-row">
+        <div class="slider-label">
+            <span>Толщина утеплителя, мм</span>
+            <span class="slider-value" id="insThickValue">100</span>
+        </div>
+        <input type="range" id="insThick" min="10" max="300" step="1" value="100">
+    </div>
+    <div class="slider-row">
+        <div class="slider-label">
+            <span>λ утеплителя, Вт/(м·К)</span>
+            <select id="lambda">
+                <option value="0.030">Пенопласт 0.030</option>
+                <option value="0.035" selected>Пенополистирол 0.035</option>
+                <option value="0.040">Минвата 0.040</option>
+                <option value="0.045">Пеностекло 0.045</option>
+            </select>
+        </div>
+    </div>
+    <div class="slider-row">
+        <div class="slider-label">
+            <span>Температура под утеплителем, °C</span>
+            <span class="slider-value" id="tBelowValue">0</span>
+        </div>
+        <input type="range" id="tBelow" min="-30" max="20" step="1" value="0">
+    </div>
     <div class="result-block" id="result"></div>
     <div style="font-size:0.75em;color:#9cb;font-style:italic;margin-top:6px;">
-        α<sub>и</sub> (излучение) — по ГОСТ<br>
-        α<sub>к</sub> (конвекция) — по ГОСТ (при 0 м/с),<br> по воздуху (при движении)
+        α<sub>и</sub> — излучение (ГОСТ), α<sub>к</sub> — конвекция (ГОСТ/воздух)<br>
+        q<sub>вниз</sub> — через утеплитель
     </div>
 </div>
 <script>
@@ -295,6 +329,13 @@
         const airSpeed = parseFloat(document.getElementById('airSpeed').value);
         document.getElementById('airSpeedValue').textContent = airSpeed.toFixed(2);
 
+        // Новый блок: вниз через утеплитель
+        const insThick = parseInt(document.getElementById('insThick').value) || 100;
+        document.getElementById('insThickValue').textContent = insThick;
+        const lambda = parseFloat(document.getElementById('lambda').value) || 0.035;
+        const tBelow = parseInt(document.getElementById('tBelow').value) || 0;
+        document.getElementById('tBelowValue').textContent = tBelow;
+
         const tm = tempPlate; // температура поверхности пола (°C)
         const tb = airTemp;   // температура воздуха (°C)
         const dt = tm - tb;
@@ -315,22 +356,31 @@
             alpha_k_src = "по скорости воздуха";
         }
 
-        // Тепловой поток излучением и конвекцией
+        // Тепловой поток вверх
         const q_rad = alpha_i * dt;
         const q_conv = alpha_k * dt;
-        const q_total = q_rad + q_conv;
+        const q_up = q_rad + q_conv;
+
+        // Вниз через утеплитель
+        const R = (insThick / 1000) / lambda; // δ, м / λ
+        let q_down = R > 0 ? (tm - tBelow) / R : 0;
 
         document.getElementById('result').innerHTML =
-            `<b>ΔT:</b> ${(dt).toFixed(1)} °C<br>` +
+            `<b>ΔT (плита-воздух):</b> ${(dt).toFixed(1)} °C<br>` +
             `<b>α<sub>и</sub> (излучение):</b> ${alpha_i.toFixed(2)} Вт/(м²·К)<br>` +
             `<b>α<sub>к</sub> (конвекция):</b> ${alpha_k.toFixed(2)} Вт/(м²·К) <span style="color:#999;font-size:0.97em;">(${alpha_k_src})</span><hr>` +
-            `<b>Излучение:</b> ${q_rad.toFixed(1)} Вт/м²<br>` +
-            `<b>Конвекция:</b> ${q_conv.toFixed(1)} Вт/м²<br>` +
-            `<hr><b>Общий поток вверх:</b> <span style="font-size:1.13em;color:#4676fa">${q_total.toFixed(1)}</span> Вт/м²`;
+            `<b>Излучение вверх:</b> ${q_rad.toFixed(1)} Вт/м²<br>` +
+            `<b>Конвекция вверх:</b> ${q_conv.toFixed(1)} Вт/м²<br>` +
+            `<b>Итого вверх:</b> <b>${q_up.toFixed(1)}</b> Вт/м²` +
+            `<hr><b>Поток вниз (через утеплитель):</b> ${q_down.toFixed(1)} Вт/м²<br>` +
+            `<hr><b>Суммарный поток:</b> <span style="font-size:1.13em;color:#4676fa">${(q_up + q_down).toFixed(1)}</span> Вт/м²`;
     }
 
     document.getElementById('tempPlate').addEventListener('input', updateResult);
     document.getElementById('airSpeed').addEventListener('input', updateResult);
+    document.getElementById('insThick').addEventListener('input', updateResult);
+    document.getElementById('lambda').addEventListener('change', updateResult);
+    document.getElementById('tBelow').addEventListener('input', updateResult);
 
     // Init
     updateSlider(airTemp);
