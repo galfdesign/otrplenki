@@ -103,7 +103,6 @@
         }
         .slab-center-row { margin-bottom: 0; }
         .insulation-center-row { margin-top: 0; margin-bottom: 10px; }
-
         .slab-slider-block {
             border-radius: 11px;
             padding: 6px 16px 6px 16px;
@@ -119,13 +118,44 @@
             justify-content: center;
             align-items: center;
             margin-bottom: 0;
+            /* background изменяется через JS */
+            background: #e9ecef;
+        }
+        .slab-slider-label, .insulation-slider-label {
+            color: #585858;
+            text-align: center;
+            font-size: 0.92em;
+            margin-bottom: 1px;
+            line-height: 1.1;
+            font-weight: 500;
+            position: relative;
+            z-index: 2;
+        }
+        .slab-temp {
+            font-size: 1em;
+            font-weight: bold;
+            margin-bottom: 1px;
+            margin-top: 0;
+            color: #303030;
+            transition: color 0.3s;
+            letter-spacing: 0.01em;
+            position: relative;
+            z-index: 2;
+        }
+        .slab-slider {
+            width: 100%;
+            accent-color: #53b4ff;
+            margin: 0 0 0 0;
+            height: 20px;
+            position: relative;
+            z-index: 2;
         }
         .insulation-block {
             border-radius: 11px;
             padding: 6px 16px 6px 16px;
             box-shadow: 0 2px 7px rgba(0,0,0,0.07);
             position: relative;
-            background: #ff9800;
+            background: #ffe0b2;
             text-align: center;
             min-height: 44px;
             max-width: 370px;
@@ -136,36 +166,25 @@
             align-items: center;
             margin-top: 0;
         }
-        .slab-slider-label,
         .insulation-slider-label {
-            color: #fff6e0;
+            color: #a96909;
             text-align: center;
             font-size: 0.92em;
             margin-bottom: 1px;
             line-height: 1.1;
             font-weight: 500;
         }
-        .slab-temp {
-            font-size: 1em;
-            font-weight: bold;
-            margin-bottom: 1px;
-            margin-top: 0;
-            color: #fff;
-            transition: color 0.3s;
-            letter-spacing: 0.01em;
-        }
-        .slab-slider,
-        .insulation-slider {
-            width: 100%;
-            accent-color: #53b4ff;
-            margin: 0 0 0 0;
-            height: 20px;
-        }
         .insulation-value {
             font-size: 1em;
             font-weight: bold;
             margin-bottom: 1px;
-            color: #fff;
+            color: #a96909;
+        }
+        .insulation-slider {
+            width: 100%;
+            accent-color: #ff9800;
+            margin: 0 0 0 0;
+            height: 20px;
         }
         .slider-row { margin-bottom: 14px; margin-top: 0; }
         .slider-label {
@@ -251,7 +270,7 @@
     </div>
 
     <div class="slab-center-row" style="margin-bottom:0;">
-      <div id="slabSliderBlock" class="slab-slider-block" style="margin-bottom:0;">
+      <div id="slabSliderBlock" class="slab-slider-block" style="margin-bottom:0; position:relative;">
           <div class="slab-slider-label">Температура поверхности плиты, °C</div>
           <div id="slabTempValue" class="slab-temp">29°C</div>
           <input type="range" id="tempPlate" class="slab-slider" min="10" max="40" step="1" value="29">
@@ -321,21 +340,23 @@
         }
     };
 
-    // Центрированный и низкий цветной блок (температура поверхности плиты)
+    // Центрированный и цветной блок температуры поверхности плиты
     const tempPlateSlider = document.getElementById('tempPlate');
     const slabTempValue = document.getElementById('slabTempValue');
     const slabSliderBlock = document.getElementById('slabSliderBlock');
     function lerpColor(a, b, t) {
+        // Линейная интерполяция цветов, a и b - HEX строки
         let ah = parseInt(a.replace('#',''), 16), bh = parseInt(b.replace('#',''), 16);
         let ar = (ah >> 16) & 0xff, ag = (ah >> 8) & 0xff, ab = ah & 0xff;
         let br = (bh >> 16) & 0xff, bg = (bh >> 8) & 0xff, bb = bh & 0xff;
-        let rr = ar + t * (br - ar), rg = ag + t * (bg - ag), rb = ab + t * (bb - ab);
+        let rr = Math.round(ar + t * (br - ar)), rg = Math.round(ag + t * (bg - ag)), rb = Math.round(ab + t * (bb - ab));
         return '#' + ((1 << 24) + (rr << 16) + (rg << 8) + (rb << 0)).toString(16).slice(1,7);
     }
     function getSlabColor(temp) {
-        if (temp <= 17) return lerpColor("#282d33", "#53b4ff", (temp-10)/7);
-        if (temp <= 30) return lerpColor("#53b4ff", "#ff4040", (temp-17)/13);
-        return lerpColor("#ff4040", "#ff0000", (temp-30)/10);
+        // от #e9ecef (серый) до #ff4040 (красный)
+        let t = (temp - 10) / 30; // 10..40 °C
+        t = Math.max(0, Math.min(1, t));
+        return lerpColor("#e9ecef", "#ff4040", t);
     }
     function updateSlabTemp() {
         const value = +tempPlateSlider.value;
@@ -345,26 +366,17 @@
     }
     tempPlateSlider.addEventListener('input', updateSlabTemp);
 
-    // Блок толщины утеплителя (рыжий)
+    // Блок толщины утеплителя (светло-оранжевый)
     const insThickSlider = document.getElementById('insThick');
     const insThickValueDisplay = document.getElementById('insThickValueDisplay');
     function updateInsThick() {
         const value = +insThickSlider.value;
         insThickValueDisplay.textContent = value;
-        // цвет блока уже задан через CSS
         updateResult();
     }
     insThickSlider.addEventListener('input', updateInsThick);
 
-    // Остальной JS-код для калькулятора
-    function getHconvAir(speed) {
-        if (speed <= 0.05) return 8;
-        if (speed <= 0.2)  return 10;
-        if (speed <= 0.5)  return 14;
-        if (speed <= 1.0)  return 18;
-        if (speed <= 2.0)  return 25;
-        return 30;
-    }
+    // --- Плавная зависимость конвекции от скорости воздуха ---
     function updateResult() {
         const tempPlate = parseInt(tempPlateSlider.value) || 29;
         const airSpeed = parseFloat(document.getElementById('airSpeed').value);
@@ -379,19 +391,14 @@
         const tb = airTemp;
         const dt = tm - tb;
 
+        // Излучение (ГОСТ)
         const alpha_i = (dt !== 0)
             ? 5.3 * (Math.pow(273 + tm, 4) - Math.pow(273 + tb, 4)) / (Math.pow(100, 4) * (tm - tb))
             : 0;
 
-        let alpha_k = 0;
-        let alpha_k_src = "";
-        if (airSpeed <= 0.05) {
-            alpha_k = (dt > 0) ? 3.6 * Math.pow(dt, 0.18) : 0;
-            alpha_k_src = "по ГОСТ";
-        } else {
-            alpha_k = getHconvAir(airSpeed);
-            alpha_k_src = "по скорости воздуха";
-        }
+        // Плавная конвекция (без ступенек)
+        // αк = 3.6 * ΔT^0.18 + 8.0 * v^0.6
+        let alpha_k = (dt > 0) ? 3.6 * Math.pow(dt, 0.18) + 8.0 * Math.pow(airSpeed, 0.6) : 0;
 
         const q_rad = alpha_i * dt;
         const q_conv = alpha_k * dt;
@@ -403,11 +410,11 @@
         document.getElementById('result').innerHTML =
             `<b>ΔT (плита-воздух):</b> ${(dt).toFixed(1)} °C<br>` +
             `<b>α<sub>и</sub> (излучение):</b> ${alpha_i.toFixed(2)} Вт/(м²·К)<br>` +
-            `<b>α<sub>к</sub> (конвекция):</b> ${alpha_k.toFixed(2)} Вт/(м²·К) <span style=\"color:#999;font-size:0.97em;\">(${alpha_k_src})</span><hr>` +
+            `<b>α<sub>к</sub> (конвекция):</b> ${alpha_k.toFixed(2)} Вт/(м²·К)<hr>` +
             `<b>Излучение вверх:</b> ${q_rad.toFixed(1)} Вт/м²<br>` +
             `<b>Конвекция вверх:</b> ${q_conv.toFixed(1)} Вт/м²<br>` +
             `<b>Поток вниз (через утеплитель):</b> ${q_down.toFixed(1)} Вт/м²` +
-            `<span class=\"highlight-result\">Итого вверх: ${q_up.toFixed(1)} Вт/м²</span>`;
+            `<span class="highlight-result">Итого вверх: ${q_up.toFixed(1)} Вт/м²</span>`;
     }
 
     document.getElementById('airSpeed').addEventListener('input', updateResult);
