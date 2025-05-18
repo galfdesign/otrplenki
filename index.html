@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Калькулятор — компактный круговой слайдер</title>
+    <title>Калькулятор теплового потока бетонной плиты — ГОСТ + воздух</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
@@ -167,13 +167,14 @@
             <span class="slider-value" id="airSpeedValue">0.00</span>
         </div>
         <input type="range" id="airSpeed" min="0" max="2" step="0.01" value="0">
-        <div style="font-size:0.86em;color:#777;margin-top:4px;">
+        <div style="font-size:0.85em;color:#777;margin-top:2px;">
             <span>0: без движения · 0.5: сквозняк · 1.0: вентиляция · 2.0: сильный поток</span>
         </div>
     </div>
     <div class="result-block" id="result"></div>
-    <div style="font-size:0.76em;color:#9cb;font-style:italic;margin-top:7px;">
-        h<sub>конв</sub> зависит от скорости воздуха, h<sub>изл</sub> ≈ 3 Вт/(м²·К)
+    <div style="font-size:0.75em;color:#9cb;font-style:italic;margin-top:6px;">
+        α<sub>и</sub> (излучение) — по ГОСТ<br>
+        α<sub>к</sub> (конвекция) — по ГОСТ (при 0 м/с),<br> по воздуху (при движении)
     </div>
 </div>
 <script>
@@ -277,37 +278,57 @@
         }
     });
 
-    // --- Логика калькулятора ---
-    function getHconv(airSpeed) {
-        if (airSpeed <= 0.05) return 8;
-        if (airSpeed <= 0.2)  return 10;
-        if (airSpeed <= 0.5)  return 14;
-        if (airSpeed <= 1)    return 18;
-        if (airSpeed <= 2)    return 25;
+    // --- Логика: ГОСТ без воздуха, при скорости > 0 — по воздуху ---
+    function getHconvAir(speed) {
+        if (speed <= 0.05) return 8;
+        if (speed <= 0.2)  return 10;
+        if (speed <= 0.5)  return 14;
+        if (speed <= 1.0)  return 18;
+        if (speed <= 2.0)  return 25;
         return 30;
     }
+
     function updateResult() {
         const tempPlate = parseInt(document.getElementById('tempPlate').value) || 10;
         document.getElementById('tempPlateValue').textContent = tempPlate;
+
         const airSpeed = parseFloat(document.getElementById('airSpeed').value);
         document.getElementById('airSpeedValue').textContent = airSpeed.toFixed(2);
 
-        const deltaT = tempPlate - airTemp;
-        const hConv = getHconv(airSpeed);
-        const hRad = 3;
+        const tm = tempPlate; // температура поверхности пола (°C)
+        const tb = airTemp;   // температура воздуха (°C)
+        const dt = tm - tb;
 
-        const qConv = hConv * deltaT;
-        const qRad = hRad * deltaT;
-        const qTotal = qConv + qRad;
+        // α_и (излучение) — ГОСТ
+        const alpha_i = (dt !== 0)
+            ? 5.3 * (Math.pow(273 + tm, 4) - Math.pow(273 + tb, 4)) / (Math.pow(100, 4) * (tm - tb))
+            : 0;
+
+        // α_к (конвекция)
+        let alpha_k = 0;
+        let alpha_k_src = "";
+        if (airSpeed <= 0.05) {
+            alpha_k = (dt > 0) ? 3.6 * Math.pow(dt, 0.18) : 0;
+            alpha_k_src = "по ГОСТ";
+        } else {
+            alpha_k = getHconvAir(airSpeed);
+            alpha_k_src = "по скорости воздуха";
+        }
+
+        // Тепловой поток излучением и конвекцией
+        const q_rad = alpha_i * dt;
+        const q_conv = alpha_k * dt;
+        const q_total = q_rad + q_conv;
 
         document.getElementById('result').innerHTML =
-            `<b>ΔT:</b> ${(deltaT).toFixed(1)} °C<br>` +
-            `<b>Коэф. конвекции:</b> ${hConv} Вт/(м²·К)<br>` +
-            `<b>Коэф. излучения:</b> ${hRad} Вт/(м²·К)<hr>` +
-            `<b>Конвекция:</b> ${qConv.toFixed(1)} Вт/м²<br>` +
-            `<b>Излучение:</b> ${qRad.toFixed(1)} Вт/м²<br>` +
-            `<hr><b>Общий поток вверх:</b> <span style="font-size:1.1em;color:#4676fa">${qTotal.toFixed(1)}</span> Вт/м²`;
+            `<b>ΔT:</b> ${(dt).toFixed(1)} °C<br>` +
+            `<b>α<sub>и</sub> (излучение):</b> ${alpha_i.toFixed(2)} Вт/(м²·К)<br>` +
+            `<b>α<sub>к</sub> (конвекция):</b> ${alpha_k.toFixed(2)} Вт/(м²·К) <span style="color:#999;font-size:0.97em;">(${alpha_k_src})</span><hr>` +
+            `<b>Излучение:</b> ${q_rad.toFixed(1)} Вт/м²<br>` +
+            `<b>Конвекция:</b> ${q_conv.toFixed(1)} Вт/м²<br>` +
+            `<hr><b>Общий поток вверх:</b> <span style="font-size:1.13em;color:#4676fa">${q_total.toFixed(1)}</span> Вт/м²`;
     }
+
     document.getElementById('tempPlate').addEventListener('input', updateResult);
     document.getElementById('airSpeed').addEventListener('input', updateResult);
 
