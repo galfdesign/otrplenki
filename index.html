@@ -96,6 +96,77 @@
         .circle-range-input {
             position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;
         }
+        /* Центрирование блоков */
+        .slab-center-row, .insulation-center-row {
+            display: flex;
+            justify-content: center;
+        }
+        .slab-center-row { margin-bottom: 0; }
+        .insulation-center-row { margin-top: 0; margin-bottom: 10px; }
+
+        .slab-slider-block {
+            border-radius: 11px;
+            padding: 6px 16px 6px 16px;
+            box-shadow: 0 2px 7px rgba(0,0,0,0.07);
+            position: relative;
+            transition: background 0.4s;
+            text-align: center;
+            min-height: 44px;
+            max-width: 370px;
+            width: 95%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 0;
+        }
+        .insulation-block {
+            border-radius: 11px;
+            padding: 6px 16px 6px 16px;
+            box-shadow: 0 2px 7px rgba(0,0,0,0.07);
+            position: relative;
+            background: #ff9800;
+            text-align: center;
+            min-height: 44px;
+            max-width: 370px;
+            width: 95%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-top: 0;
+        }
+        .slab-slider-label,
+        .insulation-slider-label {
+            color: #fff6e0;
+            text-align: center;
+            font-size: 0.92em;
+            margin-bottom: 1px;
+            line-height: 1.1;
+            font-weight: 500;
+        }
+        .slab-temp {
+            font-size: 1em;
+            font-weight: bold;
+            margin-bottom: 1px;
+            margin-top: 0;
+            color: #fff;
+            transition: color 0.3s;
+            letter-spacing: 0.01em;
+        }
+        .slab-slider,
+        .insulation-slider {
+            width: 100%;
+            accent-color: #53b4ff;
+            margin: 0 0 0 0;
+            height: 20px;
+        }
+        .insulation-value {
+            font-size: 1em;
+            font-weight: bold;
+            margin-bottom: 1px;
+            color: #fff;
+        }
         .slider-row { margin-bottom: 14px; margin-top: 0; }
         .slider-label {
             display: flex; justify-content: space-between; align-items: center;
@@ -106,6 +177,14 @@
         }
         input[type="range"] {
             width: 100%; accent-color: #53b4ff; margin: 0; margin-top: 2px;
+        }
+        .air-speed-row {
+            margin-bottom: 10px;
+        }
+        .air-speed-info {
+            font-size:0.85em;
+            color:#777;
+            margin-top:2px;
         }
         .result-block {
             margin-top: 10px;
@@ -159,30 +238,33 @@
         </div>
         <button class="circle-range-btn" id="circlePlus" title="Увеличить">+</button>
     </div>
-    <div class="slider-row">
+
+    <div class="air-speed-row">
         <div class="slider-label">
             <span>Скорость воздуха, м/с</span>
             <span class="slider-value" id="airSpeedValue">0.00</span>
         </div>
         <input type="range" id="airSpeed" min="0" max="2" step="0.01" value="0">
-        <div style="font-size:0.85em;color:#777;margin-top:2px;">
+        <div class="air-speed-info">
             <span>0: без движения · 0.5: сквозняк · 1.0: вентиляция · 2.0: сильный поток</span>
         </div>
     </div>
-    <div class="slider-row">
-        <div class="slider-label">
-            <span>Температура плиты, °C</span>
-            <span class="slider-value" id="tempPlateValue">29</span>
-        </div>
-        <input type="range" id="tempPlate" min="10" max="40" step="1" value="29">
+
+    <div class="slab-center-row" style="margin-bottom:0;">
+      <div id="slabSliderBlock" class="slab-slider-block" style="margin-bottom:0;">
+          <div class="slab-slider-label">Температура поверхности плиты, °C</div>
+          <div id="slabTempValue" class="slab-temp">29°C</div>
+          <input type="range" id="tempPlate" class="slab-slider" min="10" max="40" step="1" value="29">
+      </div>
     </div>
-    <div class="slider-row">
-        <div class="slider-label">
-            <span>Толщина утеплителя, мм</span>
-            <span class="slider-value" id="insThickValue">50</span>
-        </div>
-        <input type="range" id="insThick" min="10" max="300" step="1" value="50">
+    <div class="insulation-center-row" style="margin-top:0; margin-bottom:10px;">
+      <div id="insulationBlock" class="insulation-block">
+          <div class="insulation-slider-label">Толщина утеплителя, мм</div>
+          <div id="insThickValueDisplay" class="insulation-value">50</div>
+          <input type="range" id="insThick" class="insulation-slider" min="10" max="300" step="1" value="50">
+      </div>
     </div>
+
     <div class="slider-row">
         <div class="slider-label">
             <span>λ утеплителя, Вт/(м·К)</span>
@@ -205,7 +287,7 @@
     <div class="footer-brand">Galf Design</div>
 </div>
 <script>
-    // Круглый range для температуры воздуха (с началом вертикально вверх)
+    // Круглый range для температуры воздуха
     const circleRange = document.getElementById('circleRange');
     const circleTempText = document.getElementById('circleTempText');
     const circleFill = document.querySelector('.circle-range-fill');
@@ -224,8 +306,6 @@
         updateResult();
     }
     circleRange.addEventListener('input', updateCircleRange);
-
-    // Кнопки + и -
     circleMinus.onclick = function() {
         let v = +circleRange.value;
         if (v > minCircle) {
@@ -241,6 +321,41 @@
         }
     };
 
+    // Центрированный и низкий цветной блок (температура поверхности плиты)
+    const tempPlateSlider = document.getElementById('tempPlate');
+    const slabTempValue = document.getElementById('slabTempValue');
+    const slabSliderBlock = document.getElementById('slabSliderBlock');
+    function lerpColor(a, b, t) {
+        let ah = parseInt(a.replace('#',''), 16), bh = parseInt(b.replace('#',''), 16);
+        let ar = (ah >> 16) & 0xff, ag = (ah >> 8) & 0xff, ab = ah & 0xff;
+        let br = (bh >> 16) & 0xff, bg = (bh >> 8) & 0xff, bb = bh & 0xff;
+        let rr = ar + t * (br - ar), rg = ag + t * (bg - ag), rb = ab + t * (bb - ab);
+        return '#' + ((1 << 24) + (rr << 16) + (rg << 8) + (rb << 0)).toString(16).slice(1,7);
+    }
+    function getSlabColor(temp) {
+        if (temp <= 17) return lerpColor("#282d33", "#53b4ff", (temp-10)/7);
+        if (temp <= 30) return lerpColor("#53b4ff", "#ff4040", (temp-17)/13);
+        return lerpColor("#ff4040", "#ff0000", (temp-30)/10);
+    }
+    function updateSlabTemp() {
+        const value = +tempPlateSlider.value;
+        slabTempValue.textContent = value + '°C';
+        slabSliderBlock.style.background = getSlabColor(value);
+        updateResult();
+    }
+    tempPlateSlider.addEventListener('input', updateSlabTemp);
+
+    // Блок толщины утеплителя (рыжий)
+    const insThickSlider = document.getElementById('insThick');
+    const insThickValueDisplay = document.getElementById('insThickValueDisplay');
+    function updateInsThick() {
+        const value = +insThickSlider.value;
+        insThickValueDisplay.textContent = value;
+        // цвет блока уже задан через CSS
+        updateResult();
+    }
+    insThickSlider.addEventListener('input', updateInsThick);
+
     // Остальной JS-код для калькулятора
     function getHconvAir(speed) {
         if (speed <= 0.05) return 8;
@@ -251,14 +366,11 @@
         return 30;
     }
     function updateResult() {
-        const tempPlate = parseInt(document.getElementById('tempPlate').value) || 29;
-        document.getElementById('tempPlateValue').textContent = tempPlate;
-
+        const tempPlate = parseInt(tempPlateSlider.value) || 29;
         const airSpeed = parseFloat(document.getElementById('airSpeed').value);
         document.getElementById('airSpeedValue').textContent = airSpeed.toFixed(2);
 
-        const insThick = parseInt(document.getElementById('insThick').value) || 50;
-        document.getElementById('insThickValue').textContent = insThick;
+        const insThick = parseInt(insThickSlider.value) || 50;
         const lambda = parseFloat(document.getElementById('lambda').value) || 0.035;
         const tBelow = parseInt(document.getElementById('tBelow').value) || 0;
         document.getElementById('tBelowValue').textContent = tBelow;
@@ -298,15 +410,15 @@
             `<span class=\"highlight-result\">Итого вверх: ${q_up.toFixed(1)} Вт/м²</span>`;
     }
 
-    document.getElementById('tempPlate').addEventListener('input', updateResult);
     document.getElementById('airSpeed').addEventListener('input', updateResult);
-    document.getElementById('insThick').addEventListener('input', updateResult);
     document.getElementById('lambda').addEventListener('change', updateResult);
     document.getElementById('tBelow').addEventListener('input', updateResult);
 
     // Первичная инициализация:
     let airTemp = +circleRange.value;
     updateCircleRange();
+    updateSlabTemp();
+    updateInsThick();
 </script>
 </body>
 </html>
