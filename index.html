@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Калькулятор теплового потока от бетонной плиты</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -12,38 +12,34 @@
         }
         .calculator {
             background: #fff;
-            max-width: 410px;
-            margin: 12px auto 0 auto;
+            max-width: 370px;
+            margin: 18px auto 0 auto;
             border-radius: 16px;
             box-shadow: 0 2px 16px rgba(70, 118, 250, 0.10);
-            padding: 10px 8px 10px 8px;
+            padding: 14px 10px 10px 10px;
         }
         h2 {
             text-align: center;
             color: #4676fa;
-            font-size: 1.17rem;
-            margin-bottom: 13px;
+            font-size: 1.2rem;
+            margin-bottom: 14px;
         }
         .knob-container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-bottom: 13px;
+            margin-bottom: 16px;
         }
         .knob-label {
             color: #789;
-            margin-bottom: 7px;
-            font-size: 1.05rem;
+            margin-bottom: 10px;
+            font-size: 0.98rem;
             text-align: center;
         }
         .slider-container {
             position: relative;
-            width: 92vw;
-            min-width: 125px;
-            max-width: 195px;
-            height: 92vw;
-            min-height: 125px;
-            max-height: 195px;
+            width: 170px;
+            height: 170px;
             margin: 0 auto 5px auto;
         }
         .slider {
@@ -68,15 +64,15 @@
         }
         .slider-thumb {
             position: absolute;
-            width: 27px;
-            height: 27px;
+            width: 26px;
+            height: 26px;
             background: #ff5e5e;
             border-radius: 50%;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             cursor: pointer;
-            box-shadow: 0 0 10px rgba(255, 94, 94, 0.55);
+            box-shadow: 0 0 8px rgba(255, 94, 94, 0.5);
             z-index: 10;
             transition: background 0.2s, box-shadow 0.2s;
             border: 3px solid #fff;
@@ -91,33 +87,33 @@
             user-select: none;
         }
         .temperature {
-            font-size: 2.1em;
+            font-size: 33px;
             font-weight: bold;
             color: #333;
             margin-bottom: 6px;
             transition: color 0.2s;
         }
         .label {
-            font-size: 1em;
+            font-size: 13px;
             color: #666;
         }
         .cold { color: #5eb8ff; }
         .hot { color: #ff5e5e; }
         .slider-row {
-            margin-bottom: 12px;
+            margin-bottom: 14px;
             margin-top: 0;
         }
         .slider-label {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2px;
-            font-size: 1em;
+            margin-bottom: 3px;
+            font-size: 0.98rem;
         }
         .slider-value {
-            min-width: 48px;
+            min-width: 44px;
             text-align: right;
-            font-size: 1.05em;
+            font-size: 1em;
             color: #4676fa;
             font-weight: bold;
         }
@@ -125,34 +121,25 @@
             width: 100%;
             accent-color: #4676fa;
             margin: 0;
-            margin-top: 3px;
-            height: 22px;
-        }
-        select {
-            padding: 5px 7px;
-            font-size: 1em;
-            border-radius: 6px;
-            border: 1px solid #b9c9db;
-            background: #f5f8fd;
+            margin-top: 2px;
         }
         .result-block {
-            margin-top: 8px;
+            margin-top: 10px;
             background: #f6f8fe;
-            padding: 13px 7px 9px 7px;
+            padding: 12px 9px 7px 9px;
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(70, 118, 250, 0.05);
-            font-size: 1.07em;
-            line-height: 1.45;
+            box-shadow: 0 2px 8px rgba(70, 118, 250, 0.06);
+            font-size: 0.98rem;
         }
         .highlight-result {
-            font-size: 1.22em;
+            font-size: 1.28em;
             color: #2b5bd8;
             font-weight: bold;
-            margin: 10px 0 5px 0;
+            margin: 12px 0 6px 0;
             display: block;
         }
         .footer-note {
-            font-size:0.97em;
+            font-size:0.82em;
             color:#98b;
             font-style:italic;
             text-align: center;
@@ -163,18 +150,19 @@
             color:#789;
             font-size: 1em;
             letter-spacing:0.04em;
-            margin-top: 9px;
+            margin-top: 10px;
             font-weight: bold;
         }
-        @media (max-width: 530px) {
-            .calculator { max-width: 99vw; padding: 4vw 1vw 6vw 1vw; }
-            .slider-container { width: 94vw; height: 94vw; min-width:100px; min-height:100px; max-width:230px; max-height:230px;}
-            .knob-label, .slider-label, .footer-brand { font-size: 1.09em;}
-            .result-block { font-size: 1em;}
+        @media (max-width: 400px) {
+            .slider-container { width: 96vw; height: 96vw; min-width:120px; min-height:120px; }
+            .calculator { max-width: 98vw; padding: 7px 1vw 6px 1vw;}
         }
-        @media (max-width: 350px) {
-            .slider-container { min-width:75px; min-height:75px; }
-            .temperature { font-size: 1.3em;}
+        select {
+            padding: 3px 7px;
+            font-size: 0.97em;
+            border-radius: 5px;
+            border: 1px solid #b9c9db;
+            background: #f5f8fd;
         }
     </style>
 </head>
@@ -201,7 +189,7 @@
             <span class="slider-value" id="airSpeedValue">0.00</span>
         </div>
         <input type="range" id="airSpeed" min="0" max="2" step="0.01" value="0">
-        <div style="font-size:0.95em;color:#777;margin-top:2px;">
+        <div style="font-size:0.85em;color:#777;margin-top:2px;">
             <span>0: без движения · 0.5: сквозняк · 1.0: вентиляция · 2.0: сильный поток</span>
         </div>
     </div>
