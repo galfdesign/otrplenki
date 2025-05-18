@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор гидравлического сопротивления</title>
+    <style>
+        :root {
+            --main-color: #2c7be5;
+            --border-color: #e3ebf6;
+            --text-color: #12263f;
+            --bg-color: #f9fbfd;
+            --input-bg: #ffffff;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+        
+        .calculator {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .calculator-header {
+            background-color: var(--main-color);
+            color: white;
+            padding: 15px 20px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .calculator-body {
+            padding: 20px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+        
+        .input-group input, 
+        .input-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 15px;
+            background-color: var(--input-bg);
+            transition: border-color 0.2s;
+        }
+        
+        .input-group input:focus, 
+        .input-group select:focus {
+            outline: none;
+            border-color: var(--main-color);
+            box-shadow: 0 0 0 3px rgba(44, 123, 229, 0.1);
+        }
+        
+        .results {
+            background-color: var(--bg-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-label {
+            font-size: 14px;
+            color: #6e84a3;
+        }
+        
+        .result-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--main-color);
+        }
+        
+        .unit-selector {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .unit-selector input {
+            flex: 2;
+        }
+        
+        .unit-selector select {
+            flex: 1;
+        }
+        
+        .fluid-properties {
+            background-color: var(--bg-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .fluid-property {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .fluid-property:last-child {
+            margin-bottom: 0;
+        }
+        
+        .fluid-property-label {
+            color: #6e84a3;
+        }
+        
+        .fluid-property-value {
+            font-weight: 500;
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .calculator-header {
+                padding: 12px 15px;
+                font-size: 16px;
+            }
+            
+            .calculator-body {
+                padding: 15px;
+            }
+            
+            .input-group input, 
+            .input-group select {
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="calculator">
+            <div class="calculator-header">
+                Калькулятор гидравлического сопротивления
+            </div>
+            <div class="calculator-body">
+                <div class="input-group">
+                    <label for="pipe-material">Материал трубопровода</label>
+                    <select id="pipe-material">
+                        <option value="ppr">Полипропилен (PPR)</option>
+                        <option value="copper">Медь</option>
+                        <option value="stainless">Нержавеющая сталь</option>
+                        <option value="metalplastic">Металлопластик</option>
+                        <option value="pex">Сшитый полиэтилен (PEX)</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label for="fluid">Жидкость</label>
+                    <select id="fluid">
+                        <option value="water">Вода</option>
+                        <option value="glycol30">30% этиленгликоль</option>
+                        <option value="glycol50">50% этиленгликоль</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label for="temperature">Температура жидкости, °C</label>
+                    <input type="number" id="temperature" value="20" min="0" max="100" step="1">
+                </div>
+                
+                <div class="fluid-properties">
+                    <div class="fluid-property">
+                        <span class="fluid-property-label">Плотность:</span>
+                        <span id="density-display" class="fluid-property-value">998.2 кг/м³</span>
+                    </div>
+                    <div class="fluid-property">
+                        <span class="fluid-property-label">Кинематическая вязкость:</span>
+                        <span id="viscosity-display" class="fluid-property-value">1.004e-6 м²/с</span>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>Расход жидкости</label>
+                    <div class="unit-selector">
+                        <input type="number" id="flow-rate" step="0.001" min="0" value="10" placeholder="Введите расход">
+                        <select id="flow-unit">
+                            <option value="m3h">м³/час</option>
+                            <option value="lmin">л/мин</option>
+                            <option value="m3s">м³/с</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="diameter">Внутренний диаметр трубопровода, мм</label>
+                    <input type="number" id="diameter" step="0.1" min="0" value="50" placeholder="Введите диаметр">
+                </div>
+                
+                <div class="input-group">
+                    <label for="length">Длина трубопровода, м</label>
+                    <input type="number" id="length" step="0.1" min="0" value="100" placeholder="Введите длину">
+                </div>
+                
+                <div class="results">
+                    <div class="result-item">
+                        <span class="result-label">Скорость потока (V)</span>
+                        <span id="velocity-result" class="result-value">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Число Рейнольдса (Re)</span>
+                        <span id="reynolds-result" class="result-value">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Коэффициент трения (λ)</span>
+                        <span id="friction-result" class="result-value">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Потери напора (h<sub>f</sub>)</span>
+                        <span id="headloss-result" class="result-value">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Перепад давления (ΔP)</span>
+                        <span id="pressure-result" class="result-value">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Свойства жидкостей в зависимости от температуры
+        const fluidProperties = {
+            water: {
+                getProperties: function(temp) {
+                    // Аппроксимация свойств воды в диапазоне 0-100°C
+                    const density = 1000 * (1 - (temp - 4) * (temp - 4) / 800000);
+                    const viscosity = 1.79e-6 * Math.exp(-0.024 * temp);
+                    return {
+                        density: parseFloat(density.toFixed(1)),
+                        viscosity: parseFloat(viscosity.toFixed(8))
+                    };
+                }
+            },
+            glycol30: {
+                getProperties: function(temp) {
+                    // Приблизительные свойства 30% гликоля
+                    const density = 1058 - 0.3 * temp;
+                    const viscosity = 4.5e-6 * Math.exp(-0.02 * temp);
+                    return {
+                        density: parseFloat(density.toFixed(1)),
+                        viscosity: parseFloat(viscosity.toFixed(8))
+                    };
+                }
+            },
+            glycol50: {
+                getProperties: function(temp) {
+                    // Приблизительные свойства 50% гликоля
+                    const density = 1088 - 0.35 * temp;
+                    const viscosity = 8.0e-6 * Math.exp(-0.025 * temp);
+                    return {
+                        density: parseFloat(density.toFixed(1)),
+                        viscosity: parseFloat(viscosity.toFixed(8))
+                    };
+                }
+            }
+        };
+
+        // Шероховатость материалов труб (в метрах)
+        const pipeMaterials = {
+            ppr: 0.000007,      // Полипропилен
+            copper: 0.0000015,   // Медь
+            stainless: 0.000045, // Нержавеющая сталь
+            metalplastic: 0.000007, // Металлопластик
+            pex: 0.000007       // Сшитый полиэтилен
+        };
+
+        // Получаем элементы DOM
+        const pipeMaterialSelect = document.getElementById('pipe-material');
+        const fluidSelect = document.getElementById('fluid');
+        const temperatureInput = document.getElementById('temperature');
+        const densityDisplay = document.getElementById('density-display');
+        const viscosityDisplay = document.getElementById('viscosity-display');
+        const flowRateInput = document.getElementById('flow-rate');
+        const flowUnitSelect = document.getElementById('flow-unit');
+        const diameterInput = document.getElementById('diameter');
+        const lengthInput = document.getElementById('length');
+        
+        // Элементы результатов
+        const velocityResult = document.getElementById('velocity-result');
+        const reynoldsResult = document.getElementById('reynolds-result');
+        const frictionResult = document.getElementById('friction-result');
+        const headlossResult = document.getElementById('headloss-result');
+        const pressureResult = document.getElementById('pressure-result');
+
+        // Функция для форматирования числа
+        function formatNumber(num, decimals = 4) {
+            if (Math.abs(num) < 0.0001) {
+                return num.toExponential(decimals);
+            }
+            return num.toLocaleString('ru-RU', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: decimals
+            });
+        }
+
+        // Обновление свойств жидкости при выборе
+        function updateFluidProperties() {
+            const fluidType = fluidSelect.value;
+            const temp = parseFloat(temperatureInput.value);
+            const properties = fluidProperties[fluidType].getProperties(temp);
+            
+            densityDisplay.textContent = `${properties.density} кг/м³`;
+            viscosityDisplay.textContent = `${properties.viscosity.toExponential(3)} м²/с`;
+            
+            calculateResistance();
+        }
+
+        // Конвертация единиц измерения
+        function convertFlowRate(value, unit) {
+            switch(unit) {
+                case 'm3h': return value / 3600; // м³/ч -> м³/с
+                case 'lmin': return value / 60000; // л/мин -> м³/с
+                default: return value; // м³/с
+            }
+        }
+
+        // Основная функция расчета
+        function calculateResistance() {
+            // Получаем текущий тип жидкости и материал трубы
+            const fluidType = fluidSelect.value;
+            const temp = parseFloat(temperatureInput.value);
+            const fluid = fluidProperties[fluidType].getProperties(temp);
+            const pipeMaterial = pipeMaterialSelect.value;
+            const Δ = pipeMaterials[pipeMaterial]; // Шероховатость
+            
+            // Получаем и конвертируем входные значения
+            const flowRate = parseFloat(flowRateInput.value);
+            const flowUnit = flowUnitSelect.value;
+            const Q = convertFlowRate(flowRate, flowUnit);
+            
+            const diameter = parseFloat(diameterInput.value) / 1000; // мм -> м
+            const length = parseFloat(lengthInput.value);
+            
+            const ρ = fluid.density;
+            const ν = fluid.viscosity;
+            
+            // Проверяем, что все поля заполнены
+            if (isNaN(Q) || isNaN(diameter) || isNaN(length)) {
+                velocityResult.textContent = '-';
+                reynoldsResult.textContent = '-';
+                frictionResult.textContent = '-';
+                headlossResult.textContent = '-';
+                pressureResult.textContent = '-';
+                return;
+            }
+            
+            // Расчет параметров
+            const A = Math.PI * diameter * diameter / 4; // Площадь сечения
+            const V = Q / A; // Скорость потока
+            const Re = V * diameter / ν; // Число Рейнольдса
+            
+            // Расчет коэффициента гидравлического трения (λ)
+            let λ;
+            
+            if (Re < 2000) {
+                // Ламинарный режим
+                λ = 64 / Re;
+            } else {
+                // Турбулентный режим (формула Колбрука-Уайта)
+                const ε = Δ / diameter; // Относительная шероховатость
+                
+                // Начальное приближение
+                let λ0 = 0.02;
+                let λ1;
+                let error = 1;
+                const tolerance = 1e-6;
+                const maxIterations = 100;
+                let iterations = 0;
+                
+                // Итерационное решение уравнения Колбрука-Уайта
+                while (error > tolerance && iterations < maxIterations) {
+                    const sqrtλ = Math.sqrt(λ0);
+                    λ1 = 1 / Math.pow(-2 * Math.log10(ε/3.7 + 2.51/(Re * sqrtλ)), 2);
+                    error = Math.abs(λ1 - λ0);
+                    λ0 = λ1;
+                    iterations++;
+                }
+                
+                λ = λ0;
+            }
+            
+            // Расчет потерь напора
+            const hf = λ * length * V * V / (diameter * 2 * 9.81);
+            
+            // Расчет перепада давления
+            const ΔP = hf * ρ * 9.81;
+            
+            // Обновляем результаты
+            velocityResult.textContent = `${formatNumber(V, 4)} м/с`;
+            reynoldsResult.textContent = formatNumber(Re, 2);
+            frictionResult.textContent = formatNumber(λ, 6);
+            headlossResult.textContent = `${formatNumber(hf, 4)} м`;
+            pressureResult.textContent = `${formatNumber(ΔP, 2)} Па (${formatNumber(ΔP / 100000, 5)} бар)`;
+        }
+
+        // Добавляем обработчики событий
+        pipeMaterialSelect.addEventListener('change', calculateResistance);
+        fluidSelect.addEventListener('change', updateFluidProperties);
+        temperatureInput.addEventListener('input', updateFluidProperties);
+        flowRateInput.addEventListener('input', calculateResistance);
+        flowUnitSelect.addEventListener('change', calculateResistance);
+        diameterInput.addEventListener('input', calculateResistance);
+        lengthInput.addEventListener('input', calculateResistance);
+
+        // Инициализация при загрузке
+        window.addEventListener('load', function() {
+            updateFluidProperties();
+            calculateResistance();
+        });
+    </script>
+</body>
+</html>
