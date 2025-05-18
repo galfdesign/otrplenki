@@ -1,135 +1,318 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Калькулятор распределения тепла в стяжке с отражающей плёнкой</title>
-  <style>
-    body {
-      background: #f8f9fa;
-      font-family: Arial, sans-serif;
-      max-width: 430px;
-      margin: 0 auto;
-      padding: 15px;
-    }
-    h1 {
-      font-size: 1.18rem;
-      color: #4361ee;
-      margin-bottom: 18px;
-    }
-    .calc-block {
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-    label {
-      display: block;
-      margin: 10px 0 4px;
-    }
-    input[type="number"], input[type="range"] {
-      width: 100%;
-      border-radius: 7px;
-      border: 1px solid #ccc;
-      margin-bottom: 8px;
-      font-size: 1rem;
-      box-sizing: border-box;
-      padding: 6px;
-    }
-    .slider-value {
-      font-weight: bold;
-      font-size: 1.05rem;
-      margin-left: 5px;
-      color: #3f37c9;
-    }
-    .result {
-      margin-top: 14px;
-      padding: 12px;
-      background: #e8f0fe;
-      border-radius: 7px;
-    }
-    .distrib {
-      margin-top: 10px;
-      font-size: 1.01rem;
-      color: #2c3e50;
-      padding: 6px 0 0 0;
-      border-top: 1px dashed #b7b7b7;
-    }
-    .up { color: #228c22; }
-    .down { color: #e06725; }
-    .note { font-size:0.97em; color:#666; margin-top:6px; }
-  </style>
+    <meta charset="UTF-8">
+    <title>Калькулятор — компактный круговой слайдер</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f3f6fb;
+            margin: 0;
+        }
+        .calculator {
+            background: #fff;
+            max-width: 350px;
+            margin: 28px auto 0 auto;
+            border-radius: 16px;
+            box-shadow: 0 2px 16px rgba(70, 118, 250, 0.10);
+            padding: 18px 10px 10px 10px;
+        }
+        h2 {
+            text-align: center;
+            color: #4676fa;
+            font-size: 1.2rem;
+            margin-bottom: 18px;
+        }
+        .knob-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+        .knob-label {
+            color: #789;
+            margin-bottom: 10px;
+            font-size: 0.98rem;
+            text-align: center;
+        }
+        .slider-container {
+            position: relative;
+            width: 170px;
+            height: 170px;
+            margin: 0 auto 5px auto;
+        }
+        .slider {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+        .slider-track {
+            fill: none;
+            stroke: #e0e0e0;
+            stroke-width: 12;
+            stroke-linecap: round;
+        }
+        .slider-progress {
+            fill: none;
+            stroke: #ff5e5e;
+            stroke-width: 12;
+            stroke-linecap: round;
+            stroke-dasharray: 424.12;
+            stroke-dashoffset: 424.12;
+            transition: stroke-dashoffset 0.3s;
+        }
+        .slider-thumb {
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            background: #ff5e5e;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(255, 94, 94, 0.5);
+            z-index: 10;
+            transition: background 0.2s, box-shadow 0.2s;
+            border: 3px solid #fff;
+        }
+        .display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 5;
+            user-select: none;
+        }
+        .temperature {
+            font-size: 33px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 6px;
+            transition: color 0.2s;
+        }
+        .label {
+            font-size: 13px;
+            color: #666;
+        }
+        .cold { color: #5eb8ff; }
+        .hot { color: #ff5e5e; }
+        .slider-row {
+            margin-bottom: 16px;
+            margin-top: 0;
+        }
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+            font-size: 0.98rem;
+        }
+        .slider-value {
+            min-width: 44px;
+            text-align: right;
+            font-size: 1em;
+            color: #4676fa;
+            font-weight: bold;
+        }
+        input[type="range"] {
+            width: 100%;
+            accent-color: #4676fa;
+            margin: 0;
+            margin-top: 2px;
+        }
+        .result-block {
+            margin-top: 14px;
+            background: #f6f8fe;
+            padding: 12px 9px 7px 9px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(70, 118, 250, 0.06);
+            font-size: 0.99rem;
+        }
+        @media (max-width: 400px) {
+            .slider-container { width: 96vw; height: 96vw; min-width:120px; min-height:120px; }
+            .calculator { max-width: 98vw; padding: 7px 1vw 6px 1vw;}
+        }
+    </style>
 </head>
 <body>
-  <h1>Калькулятор распределения тепла в стяжке<br>с отражающей плёнкой</h1>
-  <div class="calc-block">
-    <label for="heat">Мощность, выделяемая в стяжке (Вт):</label>
-    <input type="number" id="heat" value="70" min="1">
-
-    <label for="reflectivity">Коэффициент отражения плёнки (%):</label>
-    <input type="number" id="reflectivity" value="95" min="50" max="99">
-
-    <label for="distance">Расстояние <b>от стяжки до плёнки</b> (мм): 
-      <span class="slider-value" id="distance-val">0</span>
-    </label>
-    <input type="range" id="distance" min="0" max="100" step="1" value="0">
-
-    <label for="upshare">Доля тепла вверх без отражения (%):</label>
-    <input type="number" id="upshare" value="70" min="1" max="99">
-
-    <div class="result" id="result"></div>
-    <div class="note">
-      <b>Справка:</b> Обычно вверх идёт 60–80% тепла (зависит от утепления и конструкции).
-    </div>
-  </div>
-  <script>
-    function calc() {
-      const heat = parseFloat(document.getElementById('heat').value);
-      const reflectivity = parseFloat(document.getElementById('reflectivity').value) / 100;
-      const d = parseFloat(document.getElementById('distance').value); // мм
-      const upShare = parseFloat(document.getElementById('upshare').value) / 100;
-
-      // 1. Базовое распределение без отражения
-      const Q_up_base = heat * upShare;
-      const Q_down_base = heat * (1 - upShare);
-
-      // 2. Эффективное отражение — экспоненциально возрастает с зазором
-      const alpha = 0.06;
-      const R_eff = reflectivity * (1 - Math.exp(-alpha * d));
-
-      // 3. Возвращённое отражённое тепло
-      const Q_return = Q_down_base * R_eff;
-
-      // 4. Итоговое распределение
-      const Q_up = Q_up_base + Q_return;
-      const Q_down = Q_down_base - Q_return;
-
-      let msg = `
-        <b>Мощность стяжки:</b> ${heat.toFixed(1)} Вт<br>
-        <b>Зазор между стяжкой и плёнкой:</b> ${d} мм<br>
-        <b>Эффективное отражение:</b> ${(R_eff*100).toFixed(1)}%
-        <div class="distrib">
-          <span class="up">Вверх в помещение: <b>${Q_up.toFixed(1)} Вт</b> (${(Q_up/heat*100).toFixed(1)}%)</span><br>
-          <span class="down">Вниз (потери): <b>${Q_down.toFixed(1)} Вт</b> (${(Q_down/heat*100).toFixed(1)}%)</span>
+<div class="calculator">
+    <h2>Тепловой поток бетонной плиты вверх</h2>
+    <div class="knob-container">
+        <div class="knob-label">Температура воздуха, °C</div>
+        <div class="slider-container">
+            <svg class="slider" viewBox="0 0 120 120">
+                <circle class="slider-track" cx="60" cy="60" r="54"></circle>
+                <circle class="slider-progress" cx="60" cy="60" r="54"></circle>
+            </svg>
+            <div class="slider-thumb"></div>
+            <div class="display">
+                <div class="temperature" id="airTempValue">20°C</div>
+                <div class="label">Температура</div>
+            </div>
         </div>
-      `;
-      if (d === 0) {
-        msg += `<br><span style="color:#f66;"><b>Нет зазора — отражение практически отсутствует.</b></span>`;
-      }
-      if (d >= 50) {
-        msg += `<br><span style="color:#07a15c;"><b>Зазор достаточный — отражение максимальное.</b></span>`;
-      }
-      document.getElementById('result').innerHTML = msg;
-      document.getElementById('distance-val').textContent = d;
+    </div>
+    <div class="slider-row">
+        <div class="slider-label">
+            <span>Температура плиты, °C</span>
+            <span class="slider-value" id="tempPlateValue">30</span>
+        </div>
+        <input type="range" id="tempPlate" min="10" max="60" step="1" value="30">
+    </div>
+    <div class="slider-row">
+        <div class="slider-label">
+            <span>Скорость воздуха, м/с</span>
+            <span class="slider-value" id="airSpeedValue">0.00</span>
+        </div>
+        <input type="range" id="airSpeed" min="0" max="2" step="0.01" value="0">
+        <div style="font-size:0.86em;color:#777;margin-top:4px;">
+            <span>0: без движения · 0.5: сквозняк · 1.0: вентиляция · 2.0: сильный поток</span>
+        </div>
+    </div>
+    <div class="result-block" id="result"></div>
+    <div style="font-size:0.76em;color:#9cb;font-style:italic;margin-top:7px;">
+        h<sub>конв</sub> зависит от скорости воздуха, h<sub>изл</sub> ≈ 3 Вт/(м²·К)
+    </div>
+</div>
+<script>
+    // --- Компактный круговой слайдер ---
+    const minTemp = 10;
+    const maxTemp = 40;
+    let airTemp = 20;
+    const slider = document.querySelector('.slider-progress');
+    const thumb = document.querySelector('.slider-thumb');
+    const temperatureDisplay = document.getElementById('airTempValue');
+    const circ = 2 * Math.PI * 54;
+    function updateSlider(temp) {
+        const percentage = (temp - minTemp) / (maxTemp - minTemp);
+        const dashoffset = circ * (1 - percentage);
+        slider.style.strokeDasharray = circ;
+        slider.style.strokeDashoffset = dashoffset;
+
+        // Позиция ручки
+        const angle = percentage * 360 - 90;
+        const radian = angle * Math.PI / 180;
+        const thumbX = 60 + 54 * Math.cos(radian);
+        const thumbY = 60 + 54 * Math.sin(radian);
+        thumb.style.left = `${thumbX * 1.41}px`;
+        thumb.style.top = `${thumbY * 1.41}px`;
+
+        // Температура в центре
+        temperatureDisplay.textContent = `${Math.round(temp)}°C`;
+
+        // Цвета
+        if (temp < 15) {
+            temperatureDisplay.className = 'temperature cold';
+            slider.style.stroke = '#5eb8ff';
+            thumb.style.background = '#5eb8ff';
+            thumb.style.boxShadow = '0 0 8px rgba(94,184,255,0.7)';
+        } else if (temp > 27) {
+            temperatureDisplay.className = 'temperature hot';
+            slider.style.stroke = '#ff5e5e';
+            thumb.style.background = '#ff5e5e';
+            thumb.style.boxShadow = '0 0 8px rgba(255,94,94,0.6)';
+        } else {
+            temperatureDisplay.className = 'temperature';
+            slider.style.stroke = '#4caf50';
+            thumb.style.background = '#4caf50';
+            thumb.style.boxShadow = '0 0 8px rgba(76,175,80,0.5)';
+        }
+        updateResult();
     }
 
-    document.getElementById('distance').addEventListener('input', calc);
-    document.getElementById('heat').addEventListener('input', calc);
-    document.getElementById('reflectivity').addEventListener('input', calc);
-    document.getElementById('upshare').addEventListener('input', calc);
+    function getAngleFromPoint(x, y) {
+        const dx = x - 90;
+        const dy = y - 90;
+        let angle = Math.atan2(dy, dx) * 180 / Math.PI + 90;
+        if (angle < 0) angle += 360;
+        return angle;
+    }
+    function setTemperatureFromAngle(angle) {
+        let percentage = angle / 360;
+        percentage = Math.max(0, Math.min(1, percentage));
+        let temp = minTemp + percentage * (maxTemp - minTemp);
+        airTemp = Math.round(temp);
+        updateSlider(airTemp);
+    }
 
-    calc(); // начальный расчёт
-  </script>
+    let isDragging = false;
+    thumb.addEventListener('mousedown', function(e) {
+        isDragging = true;
+        e.preventDefault();
+    });
+    document.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        const sliderRect = slider.getBoundingClientRect();
+        const x = e.clientX - (sliderRect.left + sliderRect.width/2) + 60;
+        const y = e.clientY - (sliderRect.top + sliderRect.height/2) + 60;
+        const angle = getAngleFromPoint(x, y);
+        setTemperatureFromAngle(angle);
+    });
+    document.addEventListener('mouseup', function() { isDragging = false; });
+    // Touch для мобилы
+    thumb.addEventListener('touchstart', function(e) { isDragging = true; e.preventDefault(); });
+    document.addEventListener('touchmove', function(e) {
+        if (!isDragging) return;
+        const touch = e.touches[0];
+        const sliderRect = slider.getBoundingClientRect();
+        const x = touch.clientX - (sliderRect.left + sliderRect.width/2) + 60;
+        const y = touch.clientY - (sliderRect.top + sliderRect.height/2) + 60;
+        const angle = getAngleFromPoint(x, y);
+        setTemperatureFromAngle(angle);
+        e.preventDefault();
+    });
+    document.addEventListener('touchend', function() { isDragging = false; });
+    // Клавиши (фокус по ручке)
+    thumb.tabIndex = 0;
+    thumb.addEventListener('keydown', function(e) {
+        if (e.key === "ArrowUp" || e.key === "ArrowRight") {
+            airTemp = Math.min(airTemp + 1, maxTemp);
+            updateSlider(airTemp);
+        }
+        if (e.key === "ArrowDown" || e.key === "ArrowLeft") {
+            airTemp = Math.max(airTemp - 1, minTemp);
+            updateSlider(airTemp);
+        }
+    });
+
+    // --- Логика калькулятора ---
+    function getHconv(airSpeed) {
+        if (airSpeed <= 0.05) return 8;
+        if (airSpeed <= 0.2)  return 10;
+        if (airSpeed <= 0.5)  return 14;
+        if (airSpeed <= 1)    return 18;
+        if (airSpeed <= 2)    return 25;
+        return 30;
+    }
+    function updateResult() {
+        const tempPlate = parseInt(document.getElementById('tempPlate').value) || 10;
+        document.getElementById('tempPlateValue').textContent = tempPlate;
+        const airSpeed = parseFloat(document.getElementById('airSpeed').value);
+        document.getElementById('airSpeedValue').textContent = airSpeed.toFixed(2);
+
+        const deltaT = tempPlate - airTemp;
+        const hConv = getHconv(airSpeed);
+        const hRad = 3;
+
+        const qConv = hConv * deltaT;
+        const qRad = hRad * deltaT;
+        const qTotal = qConv + qRad;
+
+        document.getElementById('result').innerHTML =
+            `<b>ΔT:</b> ${(deltaT).toFixed(1)} °C<br>` +
+            `<b>Коэф. конвекции:</b> ${hConv} Вт/(м²·К)<br>` +
+            `<b>Коэф. излучения:</b> ${hRad} Вт/(м²·К)<hr>` +
+            `<b>Конвекция:</b> ${qConv.toFixed(1)} Вт/м²<br>` +
+            `<b>Излучение:</b> ${qRad.toFixed(1)} Вт/м²<br>` +
+            `<hr><b>Общий поток вверх:</b> <span style="font-size:1.1em;color:#4676fa">${qTotal.toFixed(1)}</span> Вт/м²`;
+    }
+    document.getElementById('tempPlate').addEventListener('input', updateResult);
+    document.getElementById('airSpeed').addEventListener('input', updateResult);
+
+    // Init
+    updateSlider(airTemp);
+</script>
 </body>
 </html>
