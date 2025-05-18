@@ -138,6 +138,21 @@
             margin: 12px 0 6px 0;
             display: block;
         }
+        .footer-note {
+            font-size:0.82em;
+            color:#98b;
+            font-style:italic;
+            text-align: center;
+            margin-top:10px;
+        }
+        .footer-brand {
+            text-align:center;
+            color:#789;
+            font-size: 1em;
+            letter-spacing:0.04em;
+            margin-top: 10px;
+            font-weight: bold;
+        }
         @media (max-width: 400px) {
             .slider-container { width: 96vw; height: 96vw; min-width:120px; min-height:120px; }
             .calculator { max-width: 98vw; padding: 7px 1vw 6px 1vw;}
@@ -183,7 +198,7 @@
             <span>Температура плиты, °C</span>
             <span class="slider-value" id="tempPlateValue">29</span>
         </div>
-        <input type="range" id="tempPlate" min="10" max="60" step="1" value="29">
+        <input type="range" id="tempPlate" min="10" max="40" step="1" value="29">
     </div>
     <div class="slider-row">
         <div class="slider-label">
@@ -211,10 +226,10 @@
         <input type="range" id="tBelow" min="-30" max="20" step="1" value="0">
     </div>
     <div class="result-block" id="result"></div>
-    <div style="font-size:0.75em;color:#9cb;font-style:italic;margin-top:6px;">
-        α<sub>и</sub> — излучение (ГОСТ), α<sub>к</sub> — конвекция (ГОСТ/воздух)<br>
-        q<sub>вниз</sub> — через утеплитель
+    <div class="footer-note">
+        Все расчёты по формулам ГОСТ для горизонтальных ограждающих конструкций.
     </div>
+    <div class="footer-brand">Galf Design</div>
 </div>
 <script>
     // --- Компактный круговой слайдер ---
@@ -373,7 +388,7 @@
         document.getElementById('result').innerHTML =
             `<b>ΔT (плита-воздух):</b> ${(dt).toFixed(1)} °C<br>` +
             `<b>α<sub>и</sub> (излучение):</b> ${alpha_i.toFixed(2)} Вт/(м²·К)<br>` +
-            `<b>α<sub>к</sub> (конвекция):</b> ${alpha_k.toFixed(2)} Вт/(м²·К) <span style="color:#999;font-size:0.97em;">(${alpha_k_src})</span><hr>` +
+            `<b>α<sub>к</sub> (конвекция):</b> ${alpha_k.toFixed(2)} Вт/(м²·К) <span style=\"color:#999;font-size:0.97em;\">(${alpha_k_src})</span><hr>` +
             `<b>Излучение вверх:</b> ${q_rad.toFixed(1)} Вт/м²<br>` +
             `<b>Конвекция вверх:</b> ${q_conv.toFixed(1)} Вт/м²<br>` +
             `<b>Поток вниз (через утеплитель):</b> ${q_down.toFixed(1)} Вт/м²` +
